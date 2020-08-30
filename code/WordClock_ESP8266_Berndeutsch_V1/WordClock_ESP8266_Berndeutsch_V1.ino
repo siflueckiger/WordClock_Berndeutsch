@@ -15,6 +15,7 @@
 
 //Bibliotheken
 #include <ESP8266WiFi.h>
+#include <WiFiManager.h>
 #include <WiFiUdp.h>
 #include <Adafruit_NeoPixel.h>
 #include <Wire.h>
@@ -28,8 +29,8 @@
 //*********************************************** PARAMETER ************************************************
 
 //Zugangsdaten WLAN
-char ssid[] = "WeAre";    //SSID
-char pass[] = "nothing!";    //Passwort
+//char ssid[] = "WeAre";    //SSID
+//char pass[] = "nothing!";    //Passwort
 
 
 //Lokale Portnummer für das UDP-Paket
@@ -230,7 +231,7 @@ void setup() {
 
   //Serielle Schnittstelle für Debuging öffen
   if (debug == HIGH) {
-    Serial.begin(115200);
+    Serial.begin(9600);
   }
 
 
@@ -252,52 +253,44 @@ void setup() {
 
   //Start: Aufbau der WLAN-Verbindung
 
-  //Wifi Verbindung aufbauen
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, pass);
+  WiFiManager wifiManager;
+  //wifiManager.resetSettings();
 
-  //Warten bis eine WiFi Verbindung aufgebaut wurde
-  while (WiFi.status() != WL_CONNECTED) {
+  red = 60;
+  green = 0;
+  blue = 0;
 
-    //Die LEDs 'NO WLAN' blinken rot, wenn kein WLAN-Zugang möglich ist
-    red = 60;
-    green = 0;
-    blue = 0;
+  pixels.setPixelColor(28, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(29, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(33, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(34, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(35, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(36, pixels.Color(red, green, blue));
+  pixels.show();
 
-    pixels.setPixelColor(28, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(29, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(33, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(34, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(35, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(36, pixels.Color(red, green, blue));
-    pixels.show();
+  wifiManager.autoConnect("Wortuhr", "wortuhr1");
 
-    delay(200);
+  red = 0;
+  green = 0;
+  blue = 0;
 
-    red = 0;
-    green = 0;
-    blue = 0;
-
-    pixels.setPixelColor(28, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(29, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(33, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(34, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(35, pixels.Color(red, green, blue));
-    pixels.show();
-    pixels.setPixelColor(36, pixels.Color(red, green, blue));
-    pixels.show();
-
-    delay(200);
-  }
+  pixels.setPixelColor(28, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(29, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(33, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(34, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(35, pixels.Color(red, green, blue));
+  pixels.show();
+  pixels.setPixelColor(36, pixels.Color(red, green, blue));
+  pixels.show();
 
   //Ende: Aufbau der WLAN-Verbindung
 
@@ -310,6 +303,62 @@ void setup() {
 
 
   //Start: Test alle LEDs bei Neustart der Uhr
+
+  //randomtest
+  Serial.begin(9600);
+
+  int leds[120];
+  int ledsLeft = 120;
+
+  for (int i = 0; i < 120; i++) {
+    leds[i] = i + 1;
+  }
+  
+  
+  for (int i = 0; i < 120; i++) {
+    if (ledsLeft > 0) {
+      red = redValueLED;
+      green = greenValueLED;
+      blue = blueValueLED;
+
+      randomSeed(analogRead(A0));
+      int r = random(0, ledsLeft);
+      pixels.setPixelColor(leds[r], pixels.Color(red, green, blue));
+      Serial.print("TEST: ");
+      Serial.println(leds[r]);
+      pixels.show();
+      delay(10);
+      leds[r] = leds[--ledsLeft];
+    }
+  }
+
+  delay(1000);
+
+  leds[120];
+  ledsLeft = 120;
+  
+  for (int i = 0; i < 120; i++) {
+    leds[i] = i + 1;
+  }
+  
+  for (int i = 0; i < 120; i++) {
+    if (ledsLeft > 0) {
+      red = 0;
+      green = 0;
+      blue = 0;
+
+      randomSeed(analogRead(A0));
+      int r = random(0, ledsLeft);
+      pixels.setPixelColor(leds[r], pixels.Color(red, green, blue));
+      Serial.print("TEST: ");
+      Serial.println(leds[r]);
+      pixels.show();
+      delay(10);
+      leds[r] = leds[--ledsLeft];
+    }
+  }
+
+  delay(1000);
 
   //Testdurchlauf => alle LEDs nacheinander einschalten
   for (i = ersteLED; i <= letzteLED; i++) {
@@ -929,7 +978,7 @@ void loop() {
       if (mezaktminute >= 23 && mezaktminute <= 27 || mezaktminute >= 38 && mezaktminute <= 57) {
         pointer = 6;
       }
-      
+
       for (i = startadresse; i <= endadresse; i++) {
         newletter[i] = 1;
       }
@@ -1058,7 +1107,6 @@ void loop() {
 
   }
 }
-
 
 //Funktion zur Anfrage eines NTP-Paketes
 void sendNTPpacket(IPAddress & address) {
